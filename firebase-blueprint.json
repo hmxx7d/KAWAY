@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "A user of the system (e.g., admin, staff)",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string", "enum": ["admin", "staff"] },
+        "name": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "name", "createdAt"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "A laundry/ironing service offered",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "createdAt", "updatedAt"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "A customer of the laundry",
+      "type": "object",
+      "properties": {
+        "phone": { "type": "string" },
+        "name": { "type": "string" },
+        "totalOrders": { "type": "number" },
+        "loyaltyPoints": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["phone", "name", "totalOrders", "loyaltyPoints", "createdAt", "updatedAt"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A laundry order",
+      "type": "object",
+      "properties": {
+        "orderNo": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "status": { "type": "string", "enum": ["RECEIVED", "SORTED", "IN_PROGRESS", "QC_REVIEW", "READY", "DELIVERED", "CANCELLED"] },
+        "priority": { "type": "string", "enum": ["NORMAL", "URGENT"] },
+        "totals": {
+          "type": "object",
+          "properties": {
+            "subtotal": { "type": "number" },
+            "tax": { "type": "number" },
+            "discount": { "type": "number" },
+            "total": { "type": "number" },
+            "paid": { "type": "number" },
+            "balance": { "type": "number" }
+          },
+          "required": ["subtotal", "tax", "discount", "total", "paid", "balance"]
+        },
+        "itemCount": { "type": "number" },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "tagCode": { "type": "string" },
+              "serviceId": { "type": "string" },
+              "serviceName": { "type": "string" },
+              "status": { "type": "string" },
+              "price": { "type": "number" }
+            },
+            "required": ["id", "tagCode", "serviceId", "serviceName", "status", "price"]
+          }
+        },
+        "dueAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["orderNo", "customerId", "customerName", "customerPhone", "status", "priority", "totals", "itemCount", "items", "dueAt", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles and roles"
+    },
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/Service" },
+      "description": "Stores available laundry services"
+    },
+    "/customers/{customerId}": {
+      "schema": { "$ref": "#/entities/Customer" },
+      "description": "Stores customer details"
+    },
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Stores laundry orders"
+    }
+  }
+}

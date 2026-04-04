@@ -1,0 +1,173 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId}
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required)
+    //   - role: string (required, 'admin' or 'staff')
+    //   - name: string (required)
+    //   - createdAt: string (required)
+    //
+    // Collection: services
+    // Document ID: {serviceId}
+    // Fields:
+    //   - name: string (required)
+    //   - price: number (required)
+    //   - createdAt: string (required)
+    //   - updatedAt: string (required)
+    //
+    // Collection: customers
+    // Document ID: {customerId}
+    // Fields:
+    //   - phone: string (required)
+    //   - name: string (required)
+    //   - totalOrders: number (required)
+    //   - loyaltyPoints: number (required)
+    //   - createdAt: string (required)
+    //   - updatedAt: string (required)
+    //
+    // Collection: orders
+    // Document ID: {orderId}
+    // Fields:
+    //   - orderNo: string (required)
+    //   - customerId: string (required)
+    //   - customerName: string (required)
+    //   - customerPhone: string (required)
+    //   - status: string (required)
+    //   - priority: string (required)
+    //   - totals: map (required)
+    //   - itemCount: number (required)
+    //   - items: list (required)
+    //   - dueAt: string (required)
+    //   - createdAt: string (required)
+    //   - updatedAt: string (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        request.auth.token.email == "2004.hamood@gmail.com"
+      );
+    }
+
+    function isStaff() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'staff'] ||
+        request.auth.token.email == "2004.hamood@gmail.com"
+      );
+    }
+
+    function hasOnlyAllowedFields(allowedFields) {
+      return request.resource.data.keys().hasOnly(allowedFields);
+    }
+
+    function hasRequiredFields(requiredFields) {
+      return request.resource.data.keys().hasAll(requiredFields);
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidUser() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['uid', 'email', 'role', 'name', 'createdAt']) &&
+             hasRequiredFields(['uid', 'email', 'role', 'name', 'createdAt']) &&
+             data.uid is string && data.uid.size() > 0 &&
+             data.email is string && data.email.size() > 0 &&
+             data.role in ['admin', 'staff'] &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidService() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['name', 'price', 'createdAt', 'updatedAt']) &&
+             hasRequiredFields(['name', 'price', 'createdAt', 'updatedAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.price is number && data.price >= 0 &&
+             isValidDateString(data.createdAt) &&
+             isValidDateString(data.updatedAt);
+    }
+
+    function isValidCustomer() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['phone', 'name', 'totalOrders', 'loyaltyPoints', 'createdAt', 'updatedAt']) &&
+             hasRequiredFields(['phone', 'name', 'totalOrders', 'loyaltyPoints', 'createdAt', 'updatedAt']) &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() < 20 &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.totalOrders is number && data.totalOrders >= 0 &&
+             data.loyaltyPoints is number && data.loyaltyPoints >= 0 &&
+             isValidDateString(data.createdAt) &&
+             isValidDateString(data.updatedAt);
+    }
+
+    function isValidOrder() {
+      let data = request.resource.data;
+      return hasOnlyAllowedFields(['orderNo', 'customerId', 'customerName', 'customerPhone', 'status', 'priority', 'totals', 'itemCount', 'items', 'dueAt', 'createdAt', 'updatedAt']) &&
+             hasRequiredFields(['orderNo', 'customerId', 'customerName', 'customerPhone', 'status', 'priority', 'totals', 'itemCount', 'items', 'dueAt', 'createdAt', 'updatedAt']) &&
+             data.orderNo is string && data.orderNo.size() > 0 && data.orderNo.size() < 50 &&
+             data.customerId is string && data.customerId.size() > 0 &&
+             data.customerName is string && data.customerName.size() > 0 && data.customerName.size() < 100 &&
+             data.customerPhone is string && data.customerPhone.size() > 0 && data.customerPhone.size() < 20 &&
+             data.status in ['RECEIVED', 'SORTED', 'IN_PROGRESS', 'QC_REVIEW', 'READY', 'DELIVERED', 'CANCELLED'] &&
+             data.priority in ['NORMAL', 'URGENT'] &&
+             data.totals is map && data.totals.keys().hasAll(['subtotal', 'tax', 'discount', 'total', 'paid', 'balance']) &&
+             data.itemCount is number && data.itemCount >= 0 &&
+             data.items is list && data.items.size() >= 0 && data.items.size() < 100 &&
+             isValidDateString(data.dueAt) &&
+             isValidDateString(data.createdAt) &&
+             isValidDateString(data.updatedAt);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isStaff();
+      allow create: if isAuthenticated() && isValidUser() && (isAdmin() || (request.auth.uid == userId && request.resource.data.role == 'staff'));
+      allow update: if isAuthenticated() && isValidUser() && isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if isStaff();
+      allow create: if isAdmin() && isValidService();
+      allow update: if isAdmin() && isValidService();
+      allow delete: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidCustomer();
+      allow update: if isStaff() && isValidCustomer();
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isStaff();
+      allow create: if isStaff() && isValidOrder();
+      allow update: if isStaff() && isValidOrder();
+      allow delete: if isAdmin();
+    }
+  }
+}
