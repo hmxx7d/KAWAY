@@ -25,10 +25,22 @@ export function KanbanScreen() {
 
   const handleMove = (orderId: string, currentStatus: OrderStatus) => {
     const currentIndex = COLUMNS.findIndex(c => c.id === currentStatus);
+    const order = orders.find(o => o.id === orderId);
+    
     if (currentIndex < COLUMNS.length - 1) {
       updateStatus.mutate({ orderId, status: COLUMNS[currentIndex + 1].id });
-    } else if (currentStatus === 'READY') {
-      updateStatus.mutate({ orderId, status: 'DELIVERED' });
+    } else if (currentStatus === 'READY' && order) {
+      updateOrder.mutate({ 
+        orderId, 
+        updates: { 
+          status: 'DELIVERED',
+          totals: {
+            ...order.totals,
+            paid: order.totals.total,
+            balance: 0
+          }
+        } 
+      });
     }
   };
 

@@ -1,10 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../shared/ui/Card';
 import { formatCurrency } from '../../shared/utils';
 import { TrendingUp, Users, Package, AlertTriangle } from 'lucide-react';
 import { useAllOrders } from '../../data/hooks/useOrders';
 import { useCustomers } from '../../data/hooks/useCustomers';
-import { format, subDays, isSameDay, parseISO } from 'date-fns';
+import { format, subDays, subMonths, isSameDay, parseISO } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import {
   AreaChart,
@@ -19,6 +19,7 @@ import {
 export function AdminScreen() {
   const { data: orders = [], isLoading: isLoadingOrders } = useAllOrders();
   const { data: customers = [], isLoading: isLoadingCustomers } = useCustomers();
+  const [timeFilter, setTimeFilter] = useState<'week' | 'month' | '6months' | 'year'>('week');
 
   const stats = useMemo(() => {
     const today = new Date();
@@ -81,20 +82,58 @@ export function AdminScreen() {
   }, [orders, customers]);
 
   const chartData = useMemo(() => {
-    // Generate last 7 days data
     const data = [];
-    for (let i = 6; i >= 0; i--) {
-      const date = subDays(new Date(), i);
-      const dayOrders = orders.filter(o => isSameDay(parseISO(o.createdAt), date) && o.status !== 'CANCELLED');
-      const revenue = dayOrders.reduce((sum, o) => sum + o.totals.total, 0);
-      
-      data.push({
-        name: format(date, 'EEEE', { locale: ar }),
-        revenue: revenue
-      });
+    const today = new Date();
+
+    if (timeFilter === 'week') {
+      for (let i = 6; i >= 0; i--) {
+        const date = subDays(today, i);
+        const dayOrders = orders.filter(o => isSameDay(parseISO(o.createdAt), date) && o.status !== 'CANCELLED');
+        const revenue = dayOrders.reduce((sum, o) => sum + o.totals.total, 0);
+        data.push({
+          name: format(date, 'EEEE', { locale: ar }),
+          revenue: revenue
+        });
+      }
+    } else if (timeFilter === 'month') {
+      for (let i = 29; i >= 0; i--) {
+        const date = subDays(today, i);
+        const dayOrders = orders.filter(o => isSameDay(parseISO(o.createdAt), date) && o.status !== 'CANCELLED');
+        const revenue = dayOrders.reduce((sum, o) => sum + o.totals.total, 0);
+        data.push({
+          name: format(date, 'd MMM', { locale: ar }),
+          revenue: revenue
+        });
+      }
+    } else if (timeFilter === '6months') {
+      for (let i = 5; i >= 0; i--) {
+        const date = subMonths(today, i);
+        const monthOrders = orders.filter(o => {
+            const oDate = parseISO(o.createdAt);
+            return oDate.getMonth() === date.getMonth() && oDate.getFullYear() === date.getFullYear() && o.status !== 'CANCELLED';
+        });
+        const revenue = monthOrders.reduce((sum, o) => sum + o.totals.total, 0);
+        data.push({
+          name: format(date, 'MMMM', { locale: ar }),
+          revenue: revenue
+        });
+      }
+    } else if (timeFilter === 'year') {
+      for (let i = 11; i >= 0; i--) {
+        const date = subMonths(today, i);
+        const monthOrders = orders.filter(o => {
+            const oDate = parseISO(o.createdAt);
+            return oDate.getMonth() === date.getMonth() && oDate.getFullYear() === date.getFullYear() && o.status !== 'CANCELLED';
+        });
+        const revenue = monthOrders.reduce((sum, o) => sum + o.totals.total, 0);
+        data.push({
+          name: format(date, 'MMM', { locale: ar }),
+          revenue: revenue
+        });
+      }
     }
     return data;
-  }, [orders]);
+  }, [orders, timeFilter]);
 
   const recentLogs = useMemo(() => {
     // Mocking recent activity based on latest orders
@@ -148,8 +187,34 @@ export function AdminScreen() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>الإيرادات (آخر 7 أيام)</CardTitle>
+          <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle>الإيرادات</CardTitle>
+            <div className="flex bg-slate-100 rounded-lg p-1 text-sm overflow-x-auto w-full sm:w-auto">
+              <button 
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md transition-colors ${timeFilter === 'week' ? 'bg-white shadow-sm font-medium text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                onClick={() => setTimeFilter('week')}
+              >
+                أسبوع
+              </button>
+              <button 
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md transition-colors ${timeFilter === 'month' ? 'bg-white shadow-sm font-medium text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                onClick={() => setTimeFilter('month')}
+              >
+                شهر
+              </button>
+              <button 
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md transition-colors ${timeFilter === '6months' ? 'bg-white shadow-sm font-medium text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                onClick={() => setTimeFilter('6months')}
+              >
+                6 أشهر
+              </button>
+              <button 
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md transition-colors ${timeFilter === 'year' ? 'bg-white shadow-sm font-medium text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                onClick={() => setTimeFilter('year')}
+              >
+                سنة
+              </button>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="h-72 w-full" dir="ltr">

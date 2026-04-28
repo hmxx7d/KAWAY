@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { Order, OrderStatus } from '../../domain/models';
 import { db } from '../../firebase';
-import { collection, doc, onSnapshot, query, where, orderBy, updateDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, where, orderBy, updateDoc, addDoc, serverTimestamp, getDocs, increment } from 'firebase/firestore';
 import { useAuth } from '../../AuthProvider';
 
 export const queryKeys = {
@@ -186,9 +186,19 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: async (order: Omit<Order, 'id' | 'orderNo' | 'createdAt' | 'updatedAt'>) => {
       try {
-        // Generate a simple order number
-        const orderNo = `ORD-${Math.floor(10000 + Math.random() * 90000)}`;
-        const now = new Date().toISOString();
+        const today = new Date();
+        const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
+        
+        // Count orders created today
+        const q = query(collection(db, 'orders'), where('createdAt', '>=', startOfDay));
+        const querySnapshot = await getDocs(q);
+        const orderCountToday = querySnapshot.docs.length + 1;
+        
+        // Format date: YYYY-MM-DD
+        const dateString = today.toISOString().split('T')[0];
+        const orderNo = `${dateString}/${orderCountToday}`;
+        
+        const now = today.toISOString();
         
         const newOrder = {
           ...order,
@@ -198,6 +208,15 @@ export function useCreateOrder() {
         };
         
         const docRef = await addDoc(collection(db, 'orders'), newOrder);
+        
+        // Update customer's totalOrders
+        if (order.customerId && order.customerId !== 'c_new') {
+          const customerRef = doc(db, 'customers', order.customerId);
+          await updateDoc(customerRef, {
+            totalOrders: increment(1)
+          });
+        }
+        
         return { id: docRef.id, ...newOrder } as Order;
       } catch (error) {
         handleFirestoreError(error, OperationType.CREATE, 'orders', user);

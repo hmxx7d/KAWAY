@@ -1,5 +1,5 @@
 import React from 'react';
-import { useActiveOrdersRealtime, useUpdateOrderStatus } from '../../data/hooks/useOrders';
+import { useActiveOrdersRealtime, useUpdateOrderStatus, useUpdateOrder } from '../../data/hooks/useOrders';
 import { Badge } from '../../shared/ui/Badge';
 import { Button } from '../../shared/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../shared/ui/Card';
@@ -8,6 +8,7 @@ import { formatCurrency } from '../../shared/utils';
 export function QCScreen() {
   const { data: orders = [], isLoading } = useActiveOrdersRealtime();
   const updateStatus = useUpdateOrderStatus();
+  const updateOrder = useUpdateOrder();
 
   // In a real app, we'd fetch READY orders specifically.
   // We use the active orders and filter for READY or QC_REVIEW.
@@ -109,10 +110,20 @@ export function QCScreen() {
 
                   <Button 
                     className="w-full bg-emerald-600 hover:bg-emerald-700 text-white" 
-                    onClick={() => updateStatus.mutate({ orderId: order.id, status: 'DELIVERED' })}
-                    disabled={updateStatus.isPending}
+                    onClick={() => updateOrder.mutate({ 
+                      orderId: order.id, 
+                      updates: { 
+                        status: 'DELIVERED',
+                        totals: {
+                          ...order.totals,
+                          paid: order.totals.total,
+                          balance: 0
+                        }
+                      } 
+                    })}
+                    disabled={updateOrder.isPending}
                   >
-                    تحديد كتم التسليم
+                    تأكيد التسليم والدفع
                   </Button>
                 </div>
               ))

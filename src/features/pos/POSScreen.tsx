@@ -13,30 +13,36 @@ export function POSScreen() {
   const [customerName, setCustomerName] = useState('');
   const [cart, setCart] = useState<{ serviceId: string; qty: number }[]>([]);
   const [isReturningCustomer, setIsReturningCustomer] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   
   const createOrder = useCreateOrder();
   const createCustomer = useCreateCustomer();
   const { data: services = [], isLoading: isLoadingServices } = useServices();
   const { data: customers = [] } = useCustomers();
 
-  // Auto-search customer by phone
+  // Remove the old useEffect and replace with simple exact match check
   useEffect(() => {
-    if (customerPhone.length >= 8) {
-      // Simple search: check if any customer phone ends with or matches the input
-      const matchedCustomer = customers.find(c => 
-        c.phone.includes(customerPhone) || customerPhone.includes(c.phone)
-      );
-      
-      if (matchedCustomer) {
-        setCustomerName(matchedCustomer.name);
-        setIsReturningCustomer(true);
-      } else {
-        setIsReturningCustomer(false);
-      }
-    } else {
-      setIsReturningCustomer(false);
-    }
+    const exactMatch = customers.find(c => c.phone === customerPhone);
+    setIsReturningCustomer(!!exactMatch);
   }, [customerPhone, customers]);
+
+  const handleSelectCustomer = (c: any) => {
+    setCustomerPhone(c.phone);
+    setCustomerName(c.name);
+    setIsReturningCustomer(true);
+    setShowSuggestions(false);
+  };
+
+  const suggestions = customers.filter(c => {
+    if (!customerPhone && !customerName) return false;
+    // Don't show suggestion if it's already an exact match
+    if (c.phone === customerPhone && c.name === customerName) return false;
+    
+    const phoneMatch = customerPhone && c.phone.includes(customerPhone);
+    const nameMatch = customerName && c.name.toLowerCase().includes(customerName.toLowerCase());
+    
+    return phoneMatch || nameMatch;
+  }).slice(0, 5);
 
   const addToCart = (serviceId: string) => {
     setCart(prev => {
@@ -52,7 +58,7 @@ export function POSScreen() {
     const service = services.find(s => s.id === item.serviceId);
     return sum + (service?.price || 0) * item.qty;
   }, 0);
-  const tax = subtotal * 0.05;
+  const tax = 0;
   const total = subtotal + tax;
 
   const handleCheckout = async () => {
@@ -62,9 +68,7 @@ export function POSScreen() {
       let currentCustomerId = 'c_new';
       
       // Check if customer exists or create a new one
-      const existingCustomer = customers.find(c => 
-        c.phone === customerPhone || c.phone.includes(customerPhone) || customerPhone.includes(c.phone)
-      );
+      const existingCustomer = customers.find(c => c.phone === customerPhone);
 
       if (existingCustomer) {
         currentCustomerId = existingCustomer.id;
@@ -126,13 +130,17 @@ export function POSScreen() {
             <CardHeader>
               <CardTitle>بيانات العميل</CardTitle>
             </CardHeader>
-            <CardContent className="flex flex-col sm:flex-row gap-4">
+            <CardContent className="flex flex-col sm:flex-row gap-4 relative">
               <div className="flex-1">
                 <label className="text-xs font-medium text-slate-500 mb-1 block">رقم الهاتف</label>
                 <Input 
                   placeholder="+968 9000 0000" 
                   value={customerPhone} 
-                  onChange={e => setCustomerPhone(e.target.value)} 
+                  onChange={e => {
+                    setCustomerPhone(e.target.value);
+                    setShowSuggestions(true);
+                  }} 
+                  onFocus={() => setShowSuggestions(true)}
                   dir="ltr"
                   className="text-right"
                 />
@@ -150,10 +158,37 @@ export function POSScreen() {
                 <Input 
                   placeholder="اسم العميل" 
                   value={customerName} 
-                  onChange={e => setCustomerName(e.target.value)} 
+                  onChange={e => {
+                    setCustomerName(e.target.value);
+                    setShowSuggestions(true);
+                  }} 
+                  onFocus={() => setShowSuggestions(true)}
                   className={isReturningCustomer ? "border-emerald-200 bg-emerald-50/30" : ""}
                 />
               </div>
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden z-10 w-full sm:w-[calc(100%-2rem)] sm:mx-4">
+                  <div className="px-3 py-2 bg-slate-50 border-b border-slate-100 text-xs font-medium text-slate-500">
+                    العملاء المقترحين
+                  </div>
+                  <ul>
+                    {suggestions.map((c) => (
+                      <li key={c.id}>
+                        <button
+                          type="button"
+                          className="w-full text-right px-4 py-3 hover:bg-slate-50 transition-colors flex justify-between items-center border-b border-slate-100 last:border-0"
+                          onClick={() => handleSelectCustomer(c)}
+                        >
+                          <span className="font-medium text-slate-900">{c.name}</span>
+                          <span className="font-mono text-sm text-slate-500" dir="ltr">{c.phone}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -216,10 +251,6 @@ export function POSScreen() {
               <span>المجموع الفرعي</span>
               <span className="font-mono" dir="ltr">{formatCurrency(subtotal)}</span>
             </div>
-            <div className="flex justify-between text-sm text-slate-500">
-              <span>الضريبة (5%)</span>
-              <span className="font-mono" dir="ltr">{formatCurrency(tax)}</span>
-            </div>
             <div className="flex justify-between text-lg font-bold text-slate-900 pt-2 border-t border-slate-200">
               <span>الإجمالي</span>
               <span className="font-mono" dir="ltr">{formatCurrency(total)}</span>
@@ -230,7 +261,7 @@ export function POSScreen() {
               disabled={cart.length === 0 || !customerPhone || createOrder.isPending}
               onClick={handleCheckout}
             >
-              {createOrder.isPending ? 'جاري المعالجة...' : 'إنشاء الطلب والدفع'}
+              {createOrder.isPending ? 'جاري المعالجة...' : 'إنشاء الطلب'}
             </Button>
           </div>
         </Card>
