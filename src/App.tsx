@@ -5,6 +5,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { useState } from 'react';
 import { AppLayout } from './features/layout/AppLayout';
 import { POSScreen } from './features/pos/POSScreen';
 import { KanbanScreen } from './features/kanban/KanbanScreen';
@@ -15,18 +16,23 @@ import { ServicesScreen } from './features/services/ServicesScreen';
 import { CustomersScreen } from './features/customers/CustomersScreen';
 import { AuthProvider, useAuth } from './AuthProvider';
 import { LoginScreen } from './LoginScreen';
+import { LandingPage } from './features/landing/LandingPage';
 
 const queryClient = new QueryClient();
 
 function ProtectedApp() {
   const { user, loading } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
 
   if (loading) {
     return <LoginScreen />;
   }
 
   if (!user) {
-    return <LoginScreen />;
+    if (showLogin) {
+      return <LoginScreen onBack={() => setShowLogin(false)} />;
+    }
+    return <LandingPage onLogin={() => setShowLogin(true)} />;
   }
 
   return (

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from './AuthProvider';
 import { Button } from './shared/ui/Button';
 import { Input } from './shared/ui/Input';
-import { Shirt } from 'lucide-react';
+import { Shirt, ArrowLeft } from 'lucide-react';
 
-export function LoginScreen() {
+export function LoginScreen({ onBack }: { onBack?: () => void }) {
   const { signIn, signInWithEmail, signUpWithEmail, loading } = useAuth();
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [email, setEmail] = useState('');
@@ -62,7 +62,16 @@ export function LoginScreen() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 relative" dir="rtl">
+      {onBack && (
+        <button 
+          onClick={onBack}
+          className="absolute top-6 right-6 flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors"
+        >
+          <ArrowLeft size={20} className="rotate-180" />
+          <span className="font-medium">العودة</span>
+        </button>
+      )}
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-slate-100">
         <div className="bg-slate-900 text-white w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
           <Shirt size={32} />

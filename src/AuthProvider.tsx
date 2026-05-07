@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             await setDoc(doc(db, 'users', currentUser.uid), {
               uid: currentUser.uid,
               email: currentUser.email,
-              name: currentUser.displayName || 'مستخدم جديد',
+              name: currentUser.displayName || currentUser.email?.split('@')[0] || 'مستخدم جديد',
               role: newRole,
               createdAt: new Date().toISOString()
             });
@@ -74,6 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (userCredential.user) {
       await updateProfile(userCredential.user, { displayName: name });
       // The onAuthStateChanged listener will handle creating the user doc in Firestore
+      // To ensure the listener gets the updated displayName, a small delay or forced reload isn't strictly needed as updateProfile triggers another auth state change.
     }
   };
 
