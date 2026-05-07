@@ -60,12 +60,98 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
           {/* Mockup Placeholder */}
           <div className="mt-20 relative mx-auto max-w-5xl">
             <div className="rounded-2xl border border-slate-200/50 bg-white/50 p-2 shadow-2xl backdrop-blur-sm">
-              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-900 aspect-video relative flex items-center justify-center shadow-inner">
-                <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 to-slate-800" />
-                <div className="relative text-center">
-                  <LayoutDashboard size={64} className="text-blue-500 mx-auto mb-4 opacity-50" />
-                  <p className="text-slate-400 font-medium font-mono">واجهة النظام (Mockup Placeholder)</p>
+              <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-50 aspect-video relative flex shadow-inner text-right" dir="rtl">
+                
+                {/* Mockup Sidebar */}
+                <div className="hidden sm:flex w-1/4 max-w-[240px] bg-white border-l border-slate-200 p-4 flex-col gap-6 relative z-10">
+                  <div className="flex items-center gap-3 mb-2 px-2">
+                    <div className="bg-slate-900 text-white p-1.5 rounded-lg">
+                      <Shirt size={16} />
+                    </div>
+                    <div className="h-4 bg-slate-800 rounded w-20"></div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center gap-3 px-3 py-2 rounded-md bg-blue-50 border border-blue-100">
+                      <LayoutDashboard size={16} className="text-blue-600" />
+                      <div className="h-3 bg-blue-600 rounded w-16"></div>
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2 rounded-md">
+                      <div className="w-4 h-4 bg-slate-200 rounded-full"></div>
+                      <div className="h-3 bg-slate-200 rounded w-20"></div>
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2 rounded-md">
+                      <div className="w-4 h-4 bg-slate-200 rounded-full"></div>
+                      <div className="h-3 bg-slate-200 rounded w-16"></div>
+                    </div>
+                    <div className="flex items-center gap-3 px-3 py-2 rounded-md">
+                      <div className="w-4 h-4 bg-slate-200 rounded-full"></div>
+                      <div className="h-3 bg-slate-200 rounded w-24"></div>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Mockup Main Content */}
+                <div className="flex-1 p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 relative z-10 overflow-hidden">
+                  
+                  {/* Top Bar */}
+                  <div className="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+                    <div className="h-4 sm:h-5 bg-slate-200 rounded w-24 sm:w-32"></div>
+                    <div className="flex gap-2">
+                      <div className="h-8 w-20 sm:w-24 bg-blue-100 rounded-lg"></div>
+                      <div className="h-8 w-8 bg-slate-100 rounded-full"></div>
+                    </div>
+                  </div>
+
+                  {/* Stats Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="bg-white p-3 sm:p-4 rounded-xl border border-slate-200 shadow-sm">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center">
+                            <div className="w-4 h-4 bg-slate-300 rounded-full"></div>
+                          </div>
+                          <div className="h-4 bg-emerald-100 rounded w-10"></div>
+                        </div>
+                        <div className="h-5 sm:h-6 bg-slate-800 rounded w-12 sm:w-16 mb-2"></div>
+                        <div className="h-2 sm:h-3 bg-slate-200 rounded w-16 sm:w-20"></div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Active Orders Table area */}
+                  <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex-1 p-4 sm:p-5 flex flex-col">
+                    <div className="flex justify-between items-center mb-4 sm:mb-6">
+                      <div className="h-4 bg-slate-800 rounded w-24 sm:w-32"></div>
+                      <div className="h-3 bg-slate-200 rounded w-16"></div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
+                          <div className="flex gap-3 sm:gap-4 items-center">
+                            <div className="w-10 h-10 bg-slate-100 rounded-lg hidden sm:block"></div>
+                            <div className="flex flex-col gap-2">
+                              <div className="h-3 sm:h-4 bg-slate-800 rounded w-24 sm:w-32"></div>
+                              <div className="flex gap-2">
+                                <div className="h-2 bg-slate-200 rounded w-12"></div>
+                                <div className="h-2 bg-slate-200 rounded w-16"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end gap-2">
+                            <div className="h-5 w-16 sm:w-20 bg-emerald-100 rounded-full"></div>
+                            <div className="h-2 bg-slate-200 rounded w-10"></div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Subtle Gradient Overlay to make it feel like a mockup */}
+                  <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none z-20"></div>
+                </div>
+
               </div>
             </div>
           </div>
@@ -170,62 +256,47 @@ export function LandingPage({ onLogin }: { onLogin: () => void }) {
             <p className="mt-4 text-lg text-slate-600">اختر الباقة المناسبة للبدء في تحويل مسار مغسلتك رقمياً.</p>
           </div>
           
-          <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {/* Basic Package */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative flex flex-col">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">الأساسية</h3>
-              <p className="text-slate-500 mb-6">للمحلات الصغيرة والناشئة.</p>
+          <div className="grid lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {/* Single Branch Package */}
+            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative flex flex-col hover:border-blue-200 hover:shadow-md transition-all">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">فرع واحد</h3>
+              <p className="text-slate-500 mb-6">للمحلات الفردية والناشئة.</p>
               <div className="mb-8">
-                <span className="text-4xl font-extrabold text-slate-900">19</span>
+                <span className="text-4xl font-extrabold text-slate-900">8</span>
                 <span className="text-slate-500"> ر.ع / شهرياً</span>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
                 <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> نقطة بيع ذكية (POS)</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> إدارة الخدمات والأسعار</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> سجل عملاء أساسي</li>
-                <li className="flex items-center gap-3 text-slate-700 opacity-40"><CheckCircle size={20} /> لوحة الإنتاج (Kanban)</li>
-                <li className="flex items-center gap-3 text-slate-700 opacity-40"><CheckCircle size={20} /> تقارير متقدمة</li>
+                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> لوحة الإنتاج (Kanban)</li>
+                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> نظام مراقبة الجودة (QC)</li>
+                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> نظام ولاء العملاء</li>
+                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> تقارير إدارية ومالية شاملة</li>
               </ul>
-              <Button onClick={onLogin} variant="outline" className="w-full text-lg h-12 rounded-xl">ابدأ الآن</Button>
+              <Button onClick={onLogin} variant="outline" className="w-full text-lg h-12 rounded-xl">ابدأ تجربتك المجانية</Button>
             </div>
             
-            {/* Advanced Package (Highlighted) */}
+            {/* Multi Branch Package (Highlighted) */}
             <div className="bg-slate-900 rounded-3xl p-8 shadow-2xl relative flex flex-col transform lg:-translate-y-4 lg:scale-105 border border-slate-800">
               <div className="absolute top-0 inset-x-0 -translate-y-1/2 flex justify-center">
-                <span className="bg-emerald-500 text-white text-sm font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-lg">الأكثر مبيعاً</span>
+                <span className="bg-emerald-500 text-white text-sm font-bold tracking-widest uppercase px-4 py-1 rounded-full shadow-lg">القيمة الأفضل</span>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2">المتقدمة</h3>
-              <p className="text-slate-400 mb-6">للمحلات المتوسطة التي تبحث عن الجودة.</p>
-              <div className="mb-8">
-                <span className="text-4xl font-extrabold text-white">49</span>
-                <span className="text-slate-400"> ر.ع / شهرياً</span>
+              <h3 className="text-2xl font-bold text-white mb-2">أكثر من ٣ محلات</h3>
+              <p className="text-slate-400 mb-6">للسلاسل والعمليات الكبيرة.</p>
+              <div className="mb-8 flex flex-col">
+                <div>
+                  <span className="text-4xl font-extrabold text-white">18</span>
+                  <span className="text-slate-400"> ر.ع / شهرياً</span>
+                </div>
+                <span className="text-emerald-400 text-sm mt-1 font-medium">لكافة المحلات (سعر ثابت)</span>
               </div>
               <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> جميع مميزات الأساسية</li>
-                <li className="flex items-center gap-3 text-white font-medium"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> لوحة الإنتاج (Kanban)</li>
-                <li className="flex items-center gap-3 text-white font-medium"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> نظام مراقبة الجودة (QC)</li>
-                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> نظام ولاء للعملاء</li>
-                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> إحصائيات مالية أساسية</li>
+                <li className="flex items-center gap-3 text-white font-medium"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> جميع مميزات منصة الكي الذكي</li>
+                <li className="flex items-center gap-3 text-white font-medium"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> إدارة الفروع المتعددة بحساب واحد</li>
+                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> تقارير مجمعة لكل الفروع</li>
+                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> نقل الموظفين بين الفروع</li>
+                <li className="flex items-center gap-3 text-slate-200"><CheckCircle className="text-emerald-400 shrink-0" size={20} /> دعم فني مخصص</li>
               </ul>
               <Button onClick={onLogin} className="w-full text-lg h-12 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white shadow-xl shadow-emerald-500/20 border-0">اشترك الآن</Button>
-            </div>
-            
-            {/* Enterprise Package */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm relative flex flex-col">
-              <h3 className="text-2xl font-bold text-slate-900 mb-2">المؤسسات</h3>
-              <p className="text-slate-500 mb-6">للسلاسل والعمليات الكبيرة.</p>
-              <div className="mb-8">
-                <span className="text-4xl font-extrabold text-slate-900">99</span>
-                <span className="text-slate-500"> ر.ع / شهرياً</span>
-              </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> جميع مميزات المتقدمة</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> إدارة الفروع المتعددة</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> تقارير إدارية وتحليلية شاملة</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> صلاحيات مخصصة للموظفين</li>
-                <li className="flex items-center gap-3 text-slate-700"><CheckCircle className="text-emerald-500 shrink-0" size={20} /> دعم فني 24/7 مخصص</li>
-              </ul>
-              <Button onClick={onLogin} variant="outline" className="w-full text-lg h-12 rounded-xl">تواصل معنا</Button>
             </div>
           </div>
         </div>
